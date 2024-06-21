@@ -2,6 +2,7 @@ package org.cm.querydsl.service;
 
 //import com.querydsl.jpa.impl.JPAQuery;
 //import com.querydsl.jpa.impl.JPAQueryFactory;
+
 import com.querydsl.core.Tuple;
 import com.querydsl.sql.*;
 import org.cm.querydsl.domain.Book;
@@ -19,6 +20,8 @@ import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * QueryDsl
@@ -54,7 +57,7 @@ public class AuthorServiceImpl implements AuthorService {
 	@Override
 	public List<Book> getAllBooksById(int id) {
 
-		queryDSL();
+		return queryDSL(id);
 
 
 //		JPAQueryFactory queryFactory = new JPAQueryFactory(entityManager);
@@ -67,6 +70,10 @@ public class AuthorServiceImpl implements AuthorService {
 //				.where(author.id.eq(id));
 //		return query.fetch();
 
+//		return jdbcExample(id);
+	}
+
+	private List<Book> jdbcExample(int id) {
 		Book book = jdbcTemplate.queryForObject(GET_BOOK_BY_ID_QUERY, new Object[]{id}, new RowMapper<Book>() {
 			@Override
 			public Book mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -80,47 +87,37 @@ public class AuthorServiceImpl implements AuthorService {
 		return List.of(book);
 	}
 
-	private void queryDSL() {
-		SQLTemplates templates =  new MySQLTemplates();
+	private List<Book> queryDSL(int id) {
+		SQLTemplates templates = new MySQLTemplates();
 		Configuration configuration = new Configuration(templates);
 		DataSource dataSource = context.getBean(DataSource.class);
 		SQLQueryFactory queryFactory = new SQLQueryFactory(configuration, dataSource);
-		QBook qbook  = QBook.book;
+		QBook qbook = QBook.book;
 		QAuthor qauthor = QAuthor.author;
 
 		/**
 		 * select book.bookName from book where book.bookName = ?
 		 */
-
 		List<Integer> ids = queryFactory.select(qbook.id).from(qbook)
 				//.where(qbook.id.eq(1))
 				.fetch();
 		List<String> lastNames = queryFactory.select(qbook.book_name).from(qbook)
 				.where(qbook.book_name.eq("HP"))
 				.fetch();
-//queryFactory.select(qbook.id, qbook.book_name, qbook.publisher_id).from(qbook).fetch()
-//		queryFactory.select(qbook.id, qbook.book_name, qbook.publisher_id).from(qbook).where(qbook.id.eq(1)).fetch()
 		SQLQuery<Tuple> query = queryFactory
 				.select(qbook.id, qbook.book_name, qbook.publisher_id)
 				.from(qbook)
 				.innerJoin(qauthor)
 				.on(qauthor.publisher_id.eq(qbook.publisher_id))
-				.where(qbook.id.eq(1));
+				.where(qauthor.id.eq(id));
 
-		List<Tuple> fetch = query.fetch();
+		List<Tuple> result = query.fetch();
 
-		/**
-		 * select book.id, book.book_name, book.publisher_id
-		 * from book
-		 * inner join author
-		 * on author.publisher_id = book.publisher_id
-		 * where book.id = ?
-		 */
-
-//		queryFactory
-//				.selectFrom(qbook)
-//				.innerJoin(author)
-//				.on(author.publisherId.eq(book.publisherId))
-//				.where(author.id.eq(id));
+		return result.stream().filter(Objects::nonNull).map((Tuple tuple) -> {
+			Integer index = tuple.get(0, Integer.class);
+			String name = tuple.get(1, String.class);
+			Long publisherId = tuple.get(2, Long.class);
+			return new Book(index, name, publisherId);
+		}).collect(Collectors.toList());
 	}
 }

@@ -2,7 +2,9 @@ package org.cm.querydsl.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 /**
@@ -12,6 +14,8 @@ import lombok.ToString;
  */
 @Data
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 public class Book {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

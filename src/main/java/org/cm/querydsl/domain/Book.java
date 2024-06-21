@@ -18,8 +18,8 @@ public class Book {
 	@Column(name = "id")
 	private Integer id;
 
-	@Column(name = "book_name", nullable = false, unique = true)
-	private String bookName;
+//	@Column(name = "book_name", nullable = false, unique = true)
+	private String book_name;
 
 //	private Long authorId;
 	private Long publisherId;

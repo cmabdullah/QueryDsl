@@ -2,13 +2,12 @@ package org.cm.querydsl.service;
 
 //import com.querydsl.jpa.impl.JPAQuery;
 //import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.querydsl.sql.Configuration;
-import com.querydsl.sql.MySQLTemplates;
-import com.querydsl.sql.SQLQueryFactory;
-import com.querydsl.sql.SQLTemplates;
+import com.querydsl.core.Tuple;
+import com.querydsl.sql.*;
 import org.cm.querydsl.domain.Book;
 //import org.cm.querydsl.domain.QAuthor;
 //import org.cm.querydsl.domain.QBook;
+import org.cm.querydsl.domain.QAuthor;
 import org.cm.querydsl.domain.QBook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -74,7 +73,7 @@ public class AuthorServiceImpl implements AuthorService {
 				Book book = new Book();
 				book.setId(rs.getInt("id"));
 				book.setBook_name(rs.getString("book_name"));
-				book.setPublisherId(rs.getLong("publisher_id"));
+				book.setPublisher_id(rs.getLong("publisher_id"));
 				return book;
 			}
 		});
@@ -87,6 +86,7 @@ public class AuthorServiceImpl implements AuthorService {
 		DataSource dataSource = context.getBean(DataSource.class);
 		SQLQueryFactory queryFactory = new SQLQueryFactory(configuration, dataSource);
 		QBook qbook  = QBook.book;
+		QAuthor qauthor = QAuthor.author;
 
 		/**
 		 * select book.bookName from book where book.bookName = ?
@@ -98,5 +98,18 @@ public class AuthorServiceImpl implements AuthorService {
 		List<String> lastNames = queryFactory.select(qbook.book_name).from(qbook)
 				.where(qbook.book_name.eq("HP"))
 				.fetch();
+//queryFactory.select(qbook.id, qbook.book_name, qbook.publisher_id).from(qbook).fetch()
+//		queryFactory.select(qbook.id, qbook.book_name, qbook.publisher_id).from(qbook).where(qbook.id.eq(1)).fetch()
+		SQLQuery<Tuple> query = queryFactory
+				.select(qbook.id, qbook.book_name, qbook.publisher_id)
+				.from(qbook).where(qbook.id.eq(1));
+
+		List<Tuple> fetch = query.fetch();
+
+//		queryFactory
+//				.selectFrom(qbook)
+//				.innerJoin(author)
+//				.on(author.publisherId.eq(book.publisherId))
+//				.where(author.id.eq(id));
 	}
 }

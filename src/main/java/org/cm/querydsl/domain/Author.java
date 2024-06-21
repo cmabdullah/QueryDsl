@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * QueryDsl
@@ -20,9 +19,9 @@ public class Author {
 	private Integer id;
 
 	@Column(name = "author_name", nullable = false, unique = true)
-	private String authorName;
+	private String author_name;
 
-	private Long publisherId;
+	private Long publisher_id;
 
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "author")
 	List<Book> books;

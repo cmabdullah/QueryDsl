@@ -22,11 +22,11 @@ public class Book {
 	private String book_name;
 
 //	private Long authorId;
-	private Long publisherId;
+	private Long publisher_id;
 
-	@JsonIgnore
-	@ToString.Exclude
-	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "author_id")
-	private Author author;
+//	@JsonIgnore
+//	@ToString.Exclude
+//	@ManyToOne(cascade = CascadeType.ALL)
+//	@JoinColumn(name = "author_id")
+//	private Author author;
 }

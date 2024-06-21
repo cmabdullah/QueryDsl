@@ -102,9 +102,20 @@ public class AuthorServiceImpl implements AuthorService {
 //		queryFactory.select(qbook.id, qbook.book_name, qbook.publisher_id).from(qbook).where(qbook.id.eq(1)).fetch()
 		SQLQuery<Tuple> query = queryFactory
 				.select(qbook.id, qbook.book_name, qbook.publisher_id)
-				.from(qbook).where(qbook.id.eq(1));
+				.from(qbook)
+				.innerJoin(qauthor)
+				.on(qauthor.publisher_id.eq(qbook.publisher_id))
+				.where(qbook.id.eq(1));
 
 		List<Tuple> fetch = query.fetch();
+
+		/**
+		 * select book.id, book.book_name, book.publisher_id
+		 * from book
+		 * inner join author
+		 * on author.publisher_id = book.publisher_id
+		 * where book.id = ?
+		 */
 
 //		queryFactory
 //				.selectFrom(qbook)
